@@ -181,6 +181,9 @@ interface BookSourceDao {
     @Query("select * from book_sources where enabled = 1 and bookSourceUrl = :baseUrl")
     fun getBookSourceAddBook(baseUrl: String): BookSource?
 
+    @Query("select * from book_sources_part where enabled = 1 order by case when bookSourceUrl=:origin then 0 else 1 end, customOrder asc")
+    fun getBookSourcePinTheFirst(origin: String): List<BookSourcePart>
+
     @get:Query(
         """select bp.* 
         from book_sources b join book_sources_part bp on b.bookSourceUrl = bp.bookSourceUrl

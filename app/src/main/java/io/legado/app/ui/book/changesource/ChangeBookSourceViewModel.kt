@@ -195,12 +195,12 @@ open class ChangeBookSourceViewModel(application: Application) : BaseViewModel(a
             _changeSourceProgress.value = 0 to ""
             val searchGroup = AppConfig.searchGroup
             if (searchGroup.isBlank()) {
-                bookSourceParts.addAll(appDb.bookSourceDao.allEnabledPart)
+                bookSourceParts.addAll(getAllEnabledPart())
             } else {
                 val sources = appDb.bookSourceDao.getEnabledPartByGroup(searchGroup)
                 if (sources.isEmpty()) {
                     AppConfig.searchGroup = ""
-                    bookSourceParts.addAll(appDb.bookSourceDao.allEnabledPart)
+                    bookSourceParts.addAll(getAllEnabledPart())
                 } else {
                     bookSourceParts.addAll(sources)
                 }
@@ -567,6 +567,15 @@ open class ChangeBookSourceViewModel(application: Application) : BaseViewModel(a
     private fun getChapterNum(wordCountText: String?): Int {
         wordCountText ?: return -1
         return chapterNumRegex.find(wordCountText)?.groupValues?.get(1)?.toIntOrNull() ?: -1
+    }
+
+    /** 将当前使用的源放在第一个结果 */
+    private fun getAllEnabledPart(): List<BookSourcePart> {
+        return if (oldBook?.origin?.isNotEmpty() == true) {
+            appDb.bookSourceDao.getBookSourcePinTheFirst(oldBook!!.origin)
+        } else {
+            appDb.bookSourceDao.allEnabledPart
+        }
     }
 
     interface SourceCallback {
